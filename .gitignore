@@ -6,3 +6,4 @@ build*
 debug/
 release/
 *appdatalocal*
+ui_*.h
