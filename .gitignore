@@ -1,0 +1,8 @@
+*.pro.*
+build*
+*.log
+.vscode
+.Debug
+debug/
+release/
+*appdatalocal*
