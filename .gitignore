@@ -6,6 +6,5 @@ build*
 debug/
 release/
 *appdatalocal*
-ui_*.h
 .DS_Store
 *.stash
