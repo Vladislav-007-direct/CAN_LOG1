@@ -162,6 +162,7 @@ QMap<QString, QList<peripherystruct>*> MainWindow::getPeriphery(){
         }
         periphery_map.value(pid_hex)->append(ps);
     }
+    return periphery_map;
 }
 void MainWindow::parseLog(QByteArray data, int silent) {
     qDebug() << "parselog";
