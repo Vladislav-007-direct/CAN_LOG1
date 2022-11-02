@@ -109,12 +109,8 @@ public:
 
     void disconnect_read_thread_listeners();
     void write_settings();
-    //void virtual_write_data(QByteArray& data);
 
-//    void setDataToGraph(QVector<QString> a);
-    void setDataToGraph();
     static QStringList checkCanDialogText(QPlainTextEdit *par1,QPlainTextEdit *par2);
-    static QVector<QString> parseToGraph(QStringList data, QString ID);
     QQueue<trblock> parseLogHelper(QByteArray &data);
 
 
@@ -150,13 +146,12 @@ private slots:
     void graphCreate2();
 
 public slots:
-    void zoomAll(int zoom);
     virtual void closeEvent(QCloseEvent *event) override;
 
     void can1_saveLog();
     void can2_saveLog();
     void setDialogGraph();
-    void createGraphObject();
+    void createGraphObject(quint32,int,int,double);
     /////////////////////////////
 
     void reboot();
@@ -207,6 +202,7 @@ public slots:
     void can1_clear();
     void can2_clear();
 
+    QMap<QString, QList<peripherystruct>*> getPeriphery();
     void parseLog(QByteArray data, int silent=0);
     void fwinfo(QByteArray info_data);
 
@@ -284,9 +280,6 @@ private:
     QDialog* can2Settings = nullptr;
 
     QDialog *createGraphdlg = nullptr;//Graph
-    QChart *chart;
-    QChartView *chartView;
-    QWidget *checkboxesWidget;
 
     QMainWindow *craneDlg = nullptr; //Crane
     QDialog *peripheryDlg = nullptr; //Periphery
@@ -362,18 +355,8 @@ private:
 
     QStringList files1;
     QStringList files2;
-    struct param_series{
-        param_series(QList<can_param> list = QList<can_param>(),bool visible=true){
-            this->is_visible=visible;
-            this->list=list;
-        }
-        QList <can_param> list;
-        bool is_visible;
-    };
-
     QMap<QString, param_series*> params;
 
     bool firstTimeConnection = true;
     bool firmwareUpdateWindowOpen = false;
 };
-

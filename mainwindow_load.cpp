@@ -86,6 +86,7 @@ void MainWindow::load_periphery() {
         peripherystruct ps;
         memset(&ps, 0, ps.STRUCT_SIZE + 1);
         memset(&ps.description, 0, sizeof(ps.description));
+        memset(&ps.is_sign, 0, 1);
         memcpy(reinterpret_cast<void *>(&ps),
                reinterpret_cast<void *>(buf.data()), buf.size());
         addAin();
@@ -101,6 +102,7 @@ void MainWindow::load_periphery() {
             ifaces[code].sizeEdit->setValue(ps.size);
             ifaces[code].filterCb->setCurrentIndex(ps.filter);
             ifaces[code].descEdit->setText(ps.elemToUTF16(ps.description, sizeof(ps.description)));
+            ifaces[code].signChb->setChecked(!!ps.is_sign);
         }
     }
     settings.endArray();

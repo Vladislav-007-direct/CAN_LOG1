@@ -142,11 +142,7 @@ QQueue<trblock> MainWindow::parseLogHelper(QByteArray &data) {
 
     return result;
 }
-
-void MainWindow::parseLog(QByteArray data, int silent) {
-    qDebug() << "parselog";
-//    qDebug() << data.toHex(' ');
-
+QMap<QString, QList<peripherystruct>*> MainWindow::getPeriphery(){
     QMap<QString, QList<peripherystruct>*> periphery_map;
     QSettings settings("ui.conf",QSettings::IniFormat,this);
     auto size = settings.beginReadArray("items");
@@ -156,14 +152,21 @@ void MainWindow::parseLog(QByteArray data, int silent) {
         peripherystruct ps;
         memset(&ps, 0, ps.STRUCT_SIZE + 1);
         memset(&ps.description, 0, sizeof(ps.description));
+        memset(&ps.is_sign, 0, 1);
         memcpy(reinterpret_cast<void *>(&ps),
                reinterpret_cast<void *>(buf.data()), buf.size());
-//        QString pid_hex = QString().setNum(ps.id, 16).toUpper();
+
         QString pid_hex = QString("%1").arg(ps.id, 8, 16, QLatin1Char('0')).toUpper();
-        if (!periphery_map.contains(pid_hex))
+        if (!periphery_map.contains(pid_hex)){
             periphery_map.insert(pid_hex, new QList<peripherystruct>());
+        }
         periphery_map.value(pid_hex)->append(ps);
     }
+}
+void MainWindow::parseLog(QByteArray data, int silent) {
+    qDebug() << "parselog";
+
+    auto periphery_map=this->getPeriphery();
 
     QQueue<trblock> blocks = parseLogHelper(data);
     params.clear();
@@ -203,10 +206,11 @@ void MainWindow::parseLog(QByteArray data, int silent) {
             while(it_pss != pss->end()) {
                 can_param obj;
                 obj.key = it_pss->name;
+                obj.canFrame=block.canFrame;
                 obj.value = ((value >> it_pss->start) & (quint64)powl(2, it_pss->size)) * it_pss->ratio;
                 obj.timestamp = timestamp;
                 if (!params.contains(obj.key)) params.insert(obj.key, new param_series());
-                params.value(obj.key)->list.append(obj);
+                params.value(obj.key)->list->append(obj);
                 it_pss++;
             }
         }
@@ -216,9 +220,10 @@ void MainWindow::parseLog(QByteArray data, int silent) {
             quint64 value = *(reinterpret_cast<quint64*>(block.canFrame.data));
             obj.key = QString("tag_%1").arg(tag);
             obj.value = value;
+            obj.canFrame=block.canFrame;
             obj.timestamp = timestamp;
             if (!params.contains(obj.key)) params.insert(obj.key, new param_series());
-            params.value(obj.key)->list.append(obj);
+            params.value(obj.key)->list->append(obj);
         }
 
         QString str;
@@ -254,11 +259,6 @@ void MainWindow::parseLog(QByteArray data, int silent) {
             can2_mdiUI->log->appendPlainText(str);
         }
     }
-//    qDebug() << paramnames.toVector();
-//    qDebug() << params.keys().toVector();
-//    for(auto value: params.values()) {
-//        qDebug() << value->keys().toVector();
-//    }
     QStringList red = checkCanDialogText(can1_mdiUI->log,can2_mdiUI->log);
 //    QVector<QVector<QString>>s=parseToGraph(red);
 

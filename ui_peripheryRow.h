@@ -42,6 +42,8 @@ public:
     QLineEdit* descEdit = nullptr;
     QLabel* canidLbl = nullptr;
     QLineEdit* canidEdit = nullptr;
+    QLabel* signLbl = nullptr;
+    QCheckBox* signChb = nullptr;
     QLabel* deleteLbl = nullptr;
     QToolButton* deleteBn = nullptr;
     int code = -1;
@@ -62,7 +64,10 @@ public:
         layout->addWidget(sizeLbl = new QLabel("длина"), 0, 7);
         layout->addWidget(descLbl = new QLabel("описание"), 0, 8);
         layout->addWidget(ratioLbl = new QLabel("коэффициент"), 0, 9);
-        layout->addWidget(filterLbl = new QLabel("опция"), 0, 10);
+        layout->addWidget(signLbl = new QLabel("знаковый"), 0, 10);
+        layout->addWidget(filterLbl = new QLabel("опция"), 0, 11);
+        layout->addWidget(deleteLbl = new QLabel(""), 0, 12);
+        layout->addItem(new QSpacerItem(20,10), 0, 13);
         layout->addWidget(logChb = new QCheckBox(), 1, 1);
         layout->addWidget(typeCb = new QComboBox(), 1, 2);
         typeCb->setFixedWidth(70);
@@ -73,8 +78,8 @@ public:
         layout->addWidget(synEdit = new QLineEdit(), 1, 4);
         synEdit->setMaxLength(10);
         synEdit->setMinimumWidth(100);
-        layout->addWidget(canidEdit = new QLineEdit(), 1, 5);
         synEdit->setMaximumWidth(150);
+        layout->addWidget(canidEdit = new QLineEdit(), 1, 5);
         canidEdit->setValidator(new QRegExpValidator(QRegExp("^[0-9A-Fa-f]+$")));
         canidEdit->setMaxLength(8);
         canidEdit->setFixedWidth(70);
@@ -91,16 +96,15 @@ public:
         ratioEdit->setRange(INT_MIN, INT_MAX);
         ratioEdit->setFixedWidth(70);
         ratioEdit->setValue(1.0);
-        layout->addWidget(filterCb = new QComboBox(), 1, 10);
+        layout->addWidget(signChb = new QCheckBox(), 1, 10);
+        layout->addWidget(filterCb = new QComboBox(), 1, 11);
         filterCb->setFixedWidth(150);
         filterCb->addItems(ifilters);
-        layout->addWidget(deleteLbl = new QLabel(""), 0, 11);
-        layout->addWidget(deleteBn = new QToolButton(), 1, 11);
+        layout->addWidget(deleteBn = new QToolButton(), 1, 12);
         deleteBn->setIcon(QIcon(":/delete.png"));
         deleteBn->setToolTip("Удалить");
         deleteBn->setAutoRaise(true);
-        layout->addItem(new QSpacerItem(20,10), 0, 12);
-        layout->addItem(new QSpacerItem(20,10), 1, 12);
+        layout->addItem(new QSpacerItem(20,10), 1, 13);
         code = ifaces_cnt;
         return layout;
     }
@@ -116,6 +120,7 @@ public:
         res += QString("ratioEdit: %1, ").arg(ratioEdit->text());
         res += QString("bitEdit: %1, ").arg(bitEdit->text());
         res += QString("sizeEdit: %1, ").arg(sizeEdit->text());
+        res += QString("signChb: %1, ").arg(signChb->text());
         res += QString("descEdit: %1, ").arg(descEdit->text());
         res += QString("canidEdit: %1 ").arg(canidEdit->text());
         res += QString("}");
@@ -131,6 +136,7 @@ public:
         if (ratioLbl)   delete ratioLbl;   if (ratioEdit)  delete ratioEdit;
         if (bitLbl)     delete bitLbl;     if (bitEdit)    delete bitEdit;
         if (sizeLbl)    delete sizeLbl;    if (sizeEdit)   delete sizeEdit;
+        if (signLbl)    delete signLbl;    if (signChb)   delete signChb;
         if (descLbl)    delete descLbl;    if (descEdit)   delete descEdit;
         if (canidLbl)   delete canidLbl;   if (canidEdit)  delete canidEdit;
         if (deleteLbl)  delete deleteLbl;  if (deleteBn)   deleteBn->deleteLater();

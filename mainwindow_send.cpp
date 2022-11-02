@@ -89,6 +89,7 @@ void MainWindow::send_periphery() {
         QString desc = vp.descEdit->text();
         memset(&ps.description, 0, sizeof(ps.description));
         memcpy(&ps.description, desc.utf16(), desc.size() * 2);
+        ps.is_sign = vp.logChb->isChecked() ? 1 : 0;
         QByteArray buf;
         quint16 len = ps.STRUCT_SIZE + tag.size() + 2;
         buf.reserve(len);

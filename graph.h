@@ -3,10 +3,24 @@
 
 #include <QDialog>
 #include <QtCharts/QtCharts>
+#include <QList>
+#include <QMap>
+#include "structs.h"
 
 namespace Ui {
-class Graph;
+    class Graph;
 }
+
+class CBIChartView: public QChartView {
+    Q_OBJECT
+
+public:
+    CBIChartView(QChart* chart): QChartView(chart) {};
+signals:
+    void signalZoom(int zoom1);
+public slots:
+    virtual void wheelEvent(QWheelEvent *event);
+};
 
 class Graph : public QDialog {
     Q_OBJECT
@@ -15,17 +29,20 @@ public:
     explicit Graph(QWidget *parent = nullptr);
     ~Graph();
 
-    void setDataToGraph(QVector<QString> a);
-    static int hexToDec(QString b);
+    QChart*             chart;
+    CBIChartView*       chartView;
+    QWidget*            checkboxesWidget;
+    QDialogButtonBox*   btn_box;
 
-
+    void setDataToGraph(const QMap<QString, param_series*>& data, const param_filter & paramfilter);
+    void setupUi();
+    void removeSeries(const QString& name);
+    void addSeries(const QString& name);
 private:
     Ui::Graph *ui;
-signals:
-    void signalZoom(int zoom1);
+    QMap<QString, QLineSeries*> seriess;
 public slots:
-    virtual void wheelEvent(QWheelEvent *event);
-   // virtual void mousePressEvent(QMouseEvent *event);
+    void zoomAll(int type);
 };
 
 #endif // GRAPH_H

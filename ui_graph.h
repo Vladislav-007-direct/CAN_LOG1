@@ -12,20 +12,29 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QDialogButtonBox>
 
 QT_BEGIN_NAMESPACE
 
 class Ui_Graph
 {
 public:
+    QDialogButtonBox *buttonBox;
 
     void setupUi(QDialog *Graph)
     {
         if (Graph->objectName().isEmpty())
             Graph->setObjectName(QString::fromUtf8("Graph"));
         Graph->resize(400, 300);
+        buttonBox = new QDialogButtonBox(Graph);
+        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setGeometry(QRect(30, 240, 341, 32));
+        buttonBox->setOrientation(Qt::Horizontal);
+        buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
         retranslateUi(Graph);
+        QObject::connect(buttonBox, SIGNAL(accepted()), Graph, SLOT(accept()));
+        QObject::connect(buttonBox, SIGNAL(rejected()), Graph, SLOT(reject()));
 
         QMetaObject::connectSlotsByName(Graph);
     } // setupUi

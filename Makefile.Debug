@@ -19,7 +19,7 @@ CXXFLAGS      = -fno-keep-inline-dllexport -g -std=gnu++11 -Wall -Wextra -Wextra
 INCPATH       = -I. -Igeostreamlib -I..\Qt\5.15.2\mingw81_32\include -I..\Qt\5.15.2\mingw81_32\include\QtPrintSupport -I..\Qt\5.15.2\mingw81_32\include\QtCharts -I..\Qt\5.15.2\mingw81_32\include\QtWidgets -I..\Qt\5.15.2\mingw81_32\include\QtGui -I..\Qt\5.15.2\mingw81_32\include\QtANGLE -I..\Qt\5.15.2\mingw81_32\include\QtSerialPort -I..\Qt\5.15.2\mingw81_32\include\QtCore -Idebug -I. -I..\Qt\5.15.2\mingw81_32\mkspecs\win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -Wl,-subsystem,windows -mthreads
-LIBS        =        -LC:\can_log_1-periplot\binlibs -lCrypt32 -lAdvAPI32 -llibeay32MD -lWS2_32 -lWSock32 C:\can_log_1-periplot\binlibs\Crypt32.lib C:\can_log_1-periplot\binlibs\AdvAPI32.lib C:\can_log_1-periplot\binlibs\libeay32MD.lib C:\can_log_1-periplot\binlibs\WS2_32.Lib C:\can_log_1-periplot\binlibs\WSock32.Lib C:\can_log_1-periplot\binlibs\chai.Lib C:\Qt\5.15.2\mingw81_32\lib\libQt5PrintSupport.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Charts.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Widgets.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Gui.a C:\Qt\5.15.2\mingw81_32\lib\libQt5SerialPort.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Core.a  -lmingw32 C:\Qt\5.15.2\mingw81_32\lib\libqtmain.a -LC:\openssl\lib -LC:\Utils\my_sql\mysql-5.7.25-win32\lib -LC:\Utils\postgresql\pgsql\lib -lshell32 
+LIBS        =        -LC:\can_log_1-periplot\binlibs -lCrypt32 -lAdvAPI32 -llibeay32MD -lWS2_32 -lWSock32 C:\can_log_1-periplot\binlibs\Crypt32.lib C:\can_log_1-periplot\binlibs\AdvAPI32.lib C:\can_log_1-periplot\binlibs\libeay32MD.lib C:\can_log_1-periplot\binlibs\WS2_32.Lib C:\can_log_1-periplot\binlibs\WSock32.Lib C:\can_log_1-periplot\binlibs\chai.Lib C:\Qt\5.15.2\mingw81_32\lib\libQt5PrintSupport.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Charts.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Widgets.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Gui.a C:\Qt\5.15.2\mingw81_32\lib\libQt5SerialPort.a C:\Qt\5.15.2\mingw81_32\lib\libQt5Core.a debug\CBI_resource_res.o  -lmingw32 C:\Qt\5.15.2\mingw81_32\lib\libqtmain.a -LC:\openssl\lib -LC:\Utils\my_sql\mysql-5.7.25-win32\lib -LC:\Utils\postgresql\pgsql\lib -lshell32 
 QMAKE         = C:\Qt\5.15.2\mingw81_32\bin\qmake.exe
 DEL_FILE      = del
 CHK_DIR_EXISTS= if not exist
@@ -40,7 +40,7 @@ IDC           = idc
 IDL           = midl
 ZIP           = zip -r -9
 DEF_FILE      = 
-RES_FILE      = 
+RES_FILE      = debug\CBI_resource_res.o
 SED           = $(QMAKE) -install sed
 MOVE          = move
 
@@ -465,8 +465,11 @@ DESTDIR_TARGET = debug\CBI.exe
 first: all
 all: Makefile.Debug  debug/CBI.exe
 
-debug/CBI.exe: C:/Qt/5.15.2/mingw81_32/lib/libQt5PrintSupport.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Charts.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Widgets.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Gui.a C:/Qt/5.15.2/mingw81_32/lib/libQt5SerialPort.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Core.a C:/Qt/5.15.2/mingw81_32/lib/libqtmain.a ui_cansendwidget.h ui_cansetting.h ui_convert.h ui_dialog.h ui_graph.h ui_mainwindow.h ui_mdisubwindow.h ui_needUpdate.h ui_packetRow.h ui_periphery.h $(OBJECTS) 
+debug/CBI.exe: C:/Qt/5.15.2/mingw81_32/lib/libQt5PrintSupport.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Charts.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Widgets.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Gui.a C:/Qt/5.15.2/mingw81_32/lib/libQt5SerialPort.a C:/Qt/5.15.2/mingw81_32/lib/libQt5Core.a C:/Qt/5.15.2/mingw81_32/lib/libqtmain.a ui_cansendwidget.h ui_cansetting.h ui_convert.h ui_dialog.h ui_graph.h ui_mainwindow.h ui_mdisubwindow.h ui_needUpdate.h ui_packetRow.h ui_periphery.h $(OBJECTS) debug/CBI_resource_res.o
 	$(LINKER) $(LFLAGS) -o $(DESTDIR_TARGET) @object_script.CBI.Debug  $(LIBS)
+
+debug/CBI_resource_res.o: CBI_resource.rc
+	windres -i CBI_resource.rc -o debug\CBI_resource_res.o --include-dir=. $(DEFINES)
 
 qmake: FORCE
 	@$(QMAKE) -o Makefile.Debug can_log_1.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
@@ -478,6 +481,7 @@ dist:
 
 clean: compiler_clean 
 	-$(DEL_FILE) debug\graph.o debug\hexvalidator.o debug\main.o debug\mainwindow.o debug\mainwindow_files.o debug\mainwindow_graph.o debug\mainwindow_load.o debug\mainwindow_send.o debug\mainwindow_show.o debug\mainwindow_trigger.o debug\qcustomplot.o debug\read_thread.o debug\update_thread.o debug\geostreampacketdata.o debug\geostreampacketvirtual.o debug\ModbusCrc.o debug\geostreampacket.o debug\geostreampacketauth.o debug\aes.o debug\aesni.o debug\arc4.o debug\aria.o debug\asn1parse.o debug\asn1write.o debug\base64.o debug\bignum.o debug\blowfish.o debug\camellia.o debug\ccm.o debug\certs.o debug\chacha20.o debug\chachapoly.o debug\cipher.o debug\cipher_wrap.o debug\cmac.o debug\ctr_drbg.o debug\debug.o debug\des.o debug\dhm.o debug\ecdh.o debug\ecdsa.o debug\ecjpake.o debug\ecp.o debug\ecp_curves.o debug\entropy.o debug\entropy_poll.o debug\error.o debug\gcm.o debug\havege.o debug\hkdf.o debug\hmac_drbg.o debug\md.o debug\md2.o debug\md4.o debug\md5.o debug\md_wrap.o debug\memory_buffer_alloc.o debug\net_sockets.o debug\nist_kw.o debug\oid.o debug\padlock.o debug\pem.o debug\pk.o debug\pk_wrap.o debug\pkcs11.o debug\pkcs12.o debug\pkcs5.o debug\pkparse.o debug\pkwrite.o debug\platform.o debug\platform_util.o debug\poly1305.o debug\ripemd160.o debug\rsa.o debug\rsa_internal.o debug\sha1.o debug\sha256.o debug\sha512.o debug\ssl_cache.o debug\ssl_ciphersuites.o debug\ssl_cli.o debug\ssl_cookie.o debug\ssl_srv.o debug\ssl_ticket.o debug\ssl_tls.o debug\threading.o debug\timing.o debug\version.o debug\version_features.o debug\x509.o debug\x509_create.o debug\x509_crl.o debug\x509_crt.o debug\x509_csr.o debug\x509write_crt.o debug\x509write_csr.o debug\xtea.o debug\qrc_resources.o debug\moc_graph.o debug\moc_hexvalidator.o debug\moc_mainwindow.o debug\moc_qcustomplot.o debug\moc_read_thread.o debug\moc_update_thread.o
+	-$(DEL_FILE) debug\CBI_resource_res.o
 
 distclean: clean 
 	-$(DEL_FILE) .qmake.stash
@@ -1076,6 +1080,9 @@ debug/moc_graph.cpp: graph.h \
 		../Qt/5.15.2/mingw81_32/include/QtCharts/qvxymodelmapper.h \
 		../Qt/5.15.2/mingw81_32/include/QtCharts/qxylegendmarker.h \
 		../Qt/5.15.2/mingw81_32/include/QtCharts/qtchartsversion.h \
+		../Qt/5.15.2/mingw81_32/include/QtCore/QMap \
+		structs.h \
+		../Qt/5.15.2/mingw81_32/include/QtCore/QString \
 		debug/moc_predefs.h \
 		../Qt/5.15.2/mingw81_32/bin/moc.exe
 	C:\Qt\5.15.2\mingw81_32\bin\moc.exe $(DEFINES) --include C:/can_log_1-periplot/debug/moc_predefs.h -IC:/Qt/5.15.2/mingw81_32/mkspecs/win32-g++ -IC:/can_log_1-periplot -IC:/can_log_1-periplot/geostreamlib -IC:/Qt/5.15.2/mingw81_32/include -IC:/Qt/5.15.2/mingw81_32/include/QtPrintSupport -IC:/Qt/5.15.2/mingw81_32/include/QtCharts -IC:/Qt/5.15.2/mingw81_32/include/QtWidgets -IC:/Qt/5.15.2/mingw81_32/include/QtGui -IC:/Qt/5.15.2/mingw81_32/include/QtANGLE -IC:/Qt/5.15.2/mingw81_32/include/QtSerialPort -IC:/Qt/5.15.2/mingw81_32/include/QtCore -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include/c++ -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include/c++/i686-w64-mingw32 -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include/c++/backward -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include-fixed -IC:/Qt/Tools/mingw810_32/i686-w64-mingw32/include graph.h -o debug\moc_graph.cpp
@@ -3677,9 +3684,14 @@ debug/graph.o: graph.cpp graph.h \
 		../Qt/5.15.2/mingw81_32/include/QtCharts/qvxymodelmapper.h \
 		../Qt/5.15.2/mingw81_32/include/QtCharts/qxylegendmarker.h \
 		../Qt/5.15.2/mingw81_32/include/QtCharts/qtchartsversion.h \
+		../Qt/5.15.2/mingw81_32/include/QtCore/QMap \
+		structs.h \
+		../Qt/5.15.2/mingw81_32/include/QtCore/QString \
 		ui_graph.h \
 		../Qt/5.15.2/mingw81_32/include/QtWidgets/QApplication \
-		../Qt/5.15.2/mingw81_32/include/QtWidgets/QDialogButtonBox
+		../Qt/5.15.2/mingw81_32/include/QtWidgets/QDialogButtonBox \
+		../Qt/5.15.2/mingw81_32/include/QtCore/QDateTime \
+		../Qt/5.15.2/mingw81_32/include/QtCharts/QDateTimeAxis
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\graph.o graph.cpp
 
 debug/hexvalidator.o: hexvalidator.cpp hexvalidator.h \

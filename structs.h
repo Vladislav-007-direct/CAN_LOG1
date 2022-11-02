@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QString>
-
+#include <QList>
 
 struct parentstruct {
     int strlen16(const ushort* strarg) {
@@ -48,9 +48,31 @@ struct can_frm {
 
 #pragma pack(push,1)
 struct can_param {
+    can_frm canFrame;
     QString key;
     quint64 value;
     quint64 timestamp;
+};
+#pragma pack(pop)
+
+#pragma pack(push,1)
+struct param_series{
+    param_series(QList<can_param>* list = new QList<can_param>(), bool visible = true) {
+        this->is_visible = visible;
+        this->list = list;
+    }
+    QList<can_param>* list;
+    bool is_visible;
+};
+#pragma pack(pop)
+
+
+#pragma pack(push,1)
+struct param_filter{
+    quint32 frame_id=0;
+    int start_bit=0;
+    int length=8;
+    double ratio=0;
 };
 #pragma pack(pop)
 
@@ -223,19 +245,19 @@ struct peripherystruct: public parentstruct {
 
     char description[256];
     const quint8 STRUCT_SIZE = 31;
-
-
-
+    quint8 is_sign = false;
     peripherystruct& operator=(peripherystruct other)
     {
         return *this;
     }
+
     QByteArray toHex() {
         QByteArray res;
-        quint16 len = STRUCT_SIZE + 1 + 256;
+        quint16 len = STRUCT_SIZE + 1 + sizeof(description) + 1;
         res.reserve(len);
         res.append(reinterpret_cast<char*>(this), STRUCT_SIZE + 1);
         res.append(description, sizeof(description));
+        res.append(is_sign, 1);
         return res.toHex();
     }
 
@@ -259,11 +281,10 @@ struct peripherystruct: public parentstruct {
         res += QString("name: %1, ").arg(name);
         res += QString("filter: %1, ").arg(filter);
         res += QString("description: %1 ").arg(description);
+        res += QString("is_sign: %1 ").arg(is_sign);
         res += QString("}");
         return res;
     }
-
-
 };
 
 #pragma pack(pop)
