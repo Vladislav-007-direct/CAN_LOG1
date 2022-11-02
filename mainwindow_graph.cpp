@@ -69,6 +69,9 @@ void MainWindow::setDialogGraph() {
         ed3->setDecimals(5);
         ed3->setValue(1);
         ed3->setMinimum(0);
+        ed1->setEnabled(false);
+        ed2->setEnabled(false);
+        ed3->setEnabled(false);
 
         QGridLayout *layout = new QGridLayout();
         layout->addWidget(lb,0,0);
@@ -89,11 +92,22 @@ void MainWindow::setDialogGraph() {
         connect(createGraphdlg,&QDialog::rejected,this,[this](){
             this->createGraphdlg->deleteLater();
         });
+        connect(ed,&QComboBox::currentTextChanged,this,[=,this](){
+            auto frm_id=ed->currentData().toInt();
+            auto state=frm_id!=0;
+            ed1->setEnabled(state);
+            ed2->setEnabled(state);
+            ed3->setEnabled(state);
+       });
         connect(createGraphdlg, &QDialog::accepted, this, [=,this]() {
             auto frm_id=ed->currentData().toInt();
-            auto startBit=ed1->value();
-            auto length=ed2->value();
-            auto ratio=ed3->value();
+            int startBit=0,length=0;
+            double ratio=0;
+            if(frm_id!=0){
+                startBit=ed1->value();
+                length=ed2->value();
+                ratio=ed3->value();
+            }
             createGraphObject(frm_id,startBit,length,ratio);
             this->createGraphdlg->deleteLater();
         });
