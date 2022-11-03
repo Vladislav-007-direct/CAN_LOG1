@@ -2,7 +2,6 @@
 
 #include <QString>
 #include <QList>
-#include <QMetaType>
 
 struct parentstruct {
     int strlen16(const ushort* strarg) {
@@ -49,36 +48,21 @@ struct can_frm {
 
 #pragma pack(push,1)
 struct can_param {
-    can_frm canFrame;
     QString key;
-    quint64 value;
+    qreal value;
     quint64 timestamp;
 };
 #pragma pack(pop)
 
 #pragma pack(push,1)
 struct param_series{
-    param_series(QList<can_param> list = QList<can_param>(), bool visible = true) {
+    param_series(QList<can_param>* list = new QList<can_param>(), bool visible = true) {
         this->is_visible = visible;
         this->list = list;
     }
-    QList<can_param> list;
+    QList<can_param>* list;
     bool is_visible;
 };
-#pragma pack(pop)
-
-
-#pragma pack(push,1)
-struct param_filter{
-    bool sign=false;
-    char param_name[10]="";
-    quint32 frame_id=0;
-    int start_bit=0;
-    int length=8;
-    double ratio=0;
-
-};
-Q_DECLARE_METATYPE(param_filter);
 #pragma pack(pop)
 
 #pragma pack(push,1)
@@ -251,10 +235,6 @@ struct peripherystruct: public parentstruct {
     char description[256];
     const quint8 STRUCT_SIZE = 31;
     quint8 is_sign = false;
-    peripherystruct& operator=(peripherystruct other)
-    {
-        return *this;
-    }
 
     QByteArray toHex() {
         QByteArray res;

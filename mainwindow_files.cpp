@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QQueue>
 #include <QFile>
+#include <QtMath>
 #include <QFileDialog>
 #include <QDateTime>
 #include <QJsonValue>
@@ -142,7 +143,11 @@ QQueue<trblock> MainWindow::parseLogHelper(QByteArray &data) {
 
     return result;
 }
-QMap<QString, QList<peripherystruct>*> MainWindow::getPeriphery(){
+
+void MainWindow::parseLog(QByteArray data, int silent) {
+    qDebug() << "parselog";
+//    qDebug() << data.toHex(' ');
+
     QMap<QString, QList<peripherystruct>*> periphery_map;
     QSettings settings("ui.conf",QSettings::IniFormat,this);
     auto size = settings.beginReadArray("items");
@@ -155,20 +160,15 @@ QMap<QString, QList<peripherystruct>*> MainWindow::getPeriphery(){
         memset(&ps.is_sign, 0, 1);
         memcpy(reinterpret_cast<void *>(&ps),
                reinterpret_cast<void *>(buf.data()), buf.size());
-
+//        QString pid_hex = QString().setNum(ps.id, 16).toUpper();
         QString pid_hex = QString("%1").arg(ps.id, 8, 16, QLatin1Char('0')).toUpper();
-        if (!periphery_map.contains(pid_hex)){
+        if (!periphery_map.contains(pid_hex))
             periphery_map.insert(pid_hex, new QList<peripherystruct>());
-        }
         periphery_map.value(pid_hex)->append(ps);
     }
-    return periphery_map;
-}
-void MainWindow::parseLog(QByteArray data, int silent) {
-    qDebug() << "parselog";
 
     QQueue<trblock> blocks = parseLogHelper(data);
-    parsedBlocks=blocks.toVector().toList();
+    params.clear();
     while (blocks.count()) {
         trblock block = blocks.dequeue();
         can_frm cf = block.canFrame;
@@ -195,10 +195,38 @@ void MainWindow::parseLog(QByteArray data, int silent) {
         QDateTime time = QDateTime::fromMSecsSinceEpoch(timestamp);
         time.setTimeSpec(Qt::UTC);
 
-
         QByteArray frameID = QByteArray::fromRawData(reinterpret_cast<char*>(&block.canFrame.frm_id),sizeof(can_frm::frm_id));
         std::reverse(frameID.begin(), frameID.end());
 
+        if (periphery_map.contains(frameID.toHex().toUpper())) {
+            auto pss = periphery_map.value(frameID.toHex().toUpper());
+            QByteArray data = QByteArray::fromRawData(reinterpret_cast<char*>(&block.canFrame.data),sizeof(can_frm::data));
+            std::reverse(data.begin(), data.end());
+            quint64 value = *(reinterpret_cast<quint64*>(data.data()));
+            auto it_pss = pss->begin();
+            while(it_pss != pss->end()) {
+                can_param obj;
+                obj.key = it_pss->name;
+                auto v = (value >> (64 - it_pss->start - it_pss->size)) & (quint64(powl(2, it_pss->size)) - 1);
+                if (it_pss->is_sign && v>>(it_pss->size - 1))
+                    v = quint64((quint64(-1)>>(it_pss->size - 1)) * quint64(powl(2, size))) | v;
+                obj.value = v * it_pss->ratio;
+                obj.timestamp = timestamp;
+                if (!params.contains(obj.key)) params.insert(obj.key, new param_series());
+                params.value(obj.key)->list->append(obj);
+                it_pss++;
+            }
+        }
+        else {
+            can_param obj;
+            quint32 tag = *(reinterpret_cast<quint32*>(&block.canFrame.frm_id));
+            quint64 value = *(reinterpret_cast<quint64*>(block.canFrame.data));
+            obj.key = QString("tag_%1").arg(tag);
+            obj.value = value;
+            obj.timestamp = timestamp;
+            if (!params.contains(obj.key)) params.insert(obj.key, new param_series());
+            params.value(obj.key)->list->append(obj);
+        }
 
         QString str;
         str = QString("RX ") + MainWindow::create_table_row_string(

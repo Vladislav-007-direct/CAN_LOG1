@@ -28,10 +28,10 @@ void MainWindow::send_crane_info() {
     QString elem7 = craneDlgUI->elem7->text();
     memset(reinterpret_cast<void *>(&crn.elem7), 0, sizeof(crn.elem7));
     memcpy(crn.elem7, elem7.utf16(), elem7.size() * 2);
-    QString elem8 = craneDlgUI->elem7->text();
+    QString elem8 = craneDlgUI->elem8->text();
     memset(reinterpret_cast<void *>(&crn.elem8), 0, sizeof(crn.elem8));
     memcpy(crn.elem8, elem8.utf16(), elem8.size() * 2);
-    QString elem9 = craneDlgUI->elem7->text();
+    QString elem9 = craneDlgUI->elem9->text();
     memset(reinterpret_cast<void *>(&crn.elem9), 0, sizeof(crn.elem9));
     memcpy(crn.elem9, elem9.utf16(), elem9.size() * 2);
     crn.elem10 = QDateTime(craneDlgUI->elem10->date()).toSecsSinceEpoch();

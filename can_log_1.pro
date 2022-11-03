@@ -19,12 +19,11 @@ LIBS += -L$$PWD/binlibs \
 CONFIG += c++11
 
 SOURCES += \
-        filteringdialog.cpp \
         graph.cpp \
         hexvalidator.cpp \
         main.cpp \
         mainwindow.cpp \
-        #geostreampacketvirtual.cpp \
+        geostreampacketvirtual.cpp \
         mainwindow_files.cpp \
         mainwindow_graph.cpp \
         mainwindow_load.cpp \
@@ -37,11 +36,10 @@ SOURCES += \
 
 
 HEADERS += \
-        filteringdialog.h \
         graph.h \
         hexvalidator.h \
         mainwindow.h \
-        #geostreampacketvirtual.h \
+        geostreampacketvirtual.h \
         qcustomplot.h \
         read_thread.h \
         structs.h \
