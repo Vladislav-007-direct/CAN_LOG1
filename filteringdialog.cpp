@@ -17,11 +17,12 @@ FilteringDialog::FilteringDialog(QList<trblock> blocks,QMap<QString, QList<perip
     for(auto const &list:periphery){
         for(auto const &j:*list){
             auto pf=param_filter{};
-            pf.frame_id=j.id;
+            pf.frame_id=0;
+            strcpy(pf.param_name,j.name);
             pf.length=j.size;
             pf.ratio=j.ratio;
             pf.start_bit=j.start;
-            peripheryCB->addItem(QString("StBit:%1;Length:%2;Ratio:%3").arg(j.start).arg(j.size).arg(j.ratio),QVariant::fromValue(pf));
+            peripheryCB->addItem(QString("%1").arg(j.name),QVariant::fromValue(pf));
         }
     }
 
@@ -89,6 +90,10 @@ param_filter FilteringDialog::filter()
     pf.length=this->length();
     pf.ratio=this->ratio();
     pf.start_bit=this->startBit();
+    if (m_state==State::Periphery){
+        auto p1=qvariant_cast<param_filter>(peripheryCB->currentData());
+        return p1;
+    }
     return pf;
 }
 
@@ -96,11 +101,18 @@ void FilteringDialog::peripheryActivated()
 {
     auto index=peripheryCB->currentIndex();
     if (index!=0){
-
         auto filter=qvariant_cast<param_filter>(peripheryCB->currentData());
+        lengthSB->blockSignals(true);
         lengthSB->setValue(filter.length);
+        lengthSB->blockSignals(false);
+
+        startBitSB->blockSignals(true);
         startBitSB->setValue(filter.start_bit);
+        startBitSB->blockSignals(false);
+
+        ratioSB->blockSignals(true);
         ratioSB->setValue(filter.ratio);
+        ratioSB->blockSignals(false);
         changeState(State::Periphery);
     }else{
         if (m_state==State::Periphery){

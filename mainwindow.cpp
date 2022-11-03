@@ -144,12 +144,16 @@ QMap<QString, param_series> MainWindow::paramsFromBlocks(QList<trblock> blocksl,
 
 
 
-        if (periphery_map.contains(frameID.toHex().toUpper())&&filter.frame_id!=0) {
+        if (periphery_map.contains(frameID.toHex().toUpper())&&(filter.frame_id!=0||strlen(filter.param_name)!=0)) {
             auto pss = periphery_map.value(frameID.toHex().toUpper());
             quint64 value = *(reinterpret_cast<quint64*>(block.canFrame.data));
             auto it_pss = pss->begin();
             while(it_pss != pss->end()) {
                 can_param obj;
+                if(strlen(filter.param_name)!=0&&strcmp(it_pss->name,filter.param_name)!=0){
+                    it_pss++;
+                    continue;
+                }
                 obj.key = it_pss->name;
                 obj.canFrame=block.canFrame;
                 obj.value = ((value >> it_pss->start) & (quint64)powl(2, it_pss->size)) * it_pss->ratio;

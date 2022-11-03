@@ -71,6 +71,7 @@ struct param_series{
 #pragma pack(push,1)
 struct param_filter{
     bool sign=false;
+    char param_name[10]="";
     quint32 frame_id=0;
     int start_bit=0;
     int length=8;
