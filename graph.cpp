@@ -13,7 +13,7 @@ Graph::Graph(QWidget *parent) :
 Graph::~Graph() {
 }
 
-void Graph::setDataToGraph(const QMap<QString, param_series*> &params,const param_filter& paramfilter) {
+void Graph::setDataToGraph(const QMap<QString, param_series> &params) {
     QDateTimeAxis *axisX = new QDateTimeAxis;
 //    axisX->setTickCount(10 * 1000);
     axisX->setFormat("HH:mm:ss\ndd.MM.yyyy");
@@ -34,23 +34,10 @@ void Graph::setDataToGraph(const QMap<QString, param_series*> &params,const para
         series->setName(name);
         series->setObjectName(name);
         auto param = params.value(name);
-        auto list = param->list;
-        auto it = list->begin();
-        while(it != list->end()) {
+        auto list = param.list;
+        auto it = list.begin();
+        while(it != list.end()) {
             auto v = *it;
-            if(paramfilter.frame_id!=0){
-                if(paramfilter.frame_id!=v.canFrame.frm_id){
-                    it++;
-                    continue;
-                }
-            }
-
-            quint64 value = *(reinterpret_cast<quint64*>(v.canFrame.data));
-
-
-            v.value = ((value >> paramfilter.start_bit) & (quint64)powl(2, paramfilter.length)) * paramfilter.ratio;
-
-
 
             series->append(v.timestamp, v.value);
             if (v.timestamp > tmax) tmax = v.timestamp;
@@ -79,12 +66,12 @@ void Graph::setDataToGraph(const QMap<QString, param_series*> &params,const para
         lbl->setPixmap(pixmap);
         lay->addWidget(cb);
         lay->addWidget(lbl);
-        auto is_visible = params.value(name)->is_visible;
+        auto is_visible = params.value(name).is_visible;
         cb->setChecked(is_visible);
         series->setVisible(is_visible);
         connect(cb, &QCheckBox::clicked, this, [=](){
-            param->is_visible = cb->isChecked();
-            if (param->is_visible) addSeries(name);
+            auto is_visible=seriess.value(name)->isVisible();
+            if (!is_visible) addSeries(name);
             else removeSeries(name);
         });
         checkboxesWidget->layout()->addWidget(w);

@@ -167,10 +167,8 @@ QMap<QString, QList<peripherystruct>*> MainWindow::getPeriphery(){
 void MainWindow::parseLog(QByteArray data, int silent) {
     qDebug() << "parselog";
 
-    auto periphery_map=this->getPeriphery();
-
     QQueue<trblock> blocks = parseLogHelper(data);
-    params.clear();
+    parsedBlocks=blocks.toVector().toList();
     while (blocks.count()) {
         trblock block = blocks.dequeue();
         can_frm cf = block.canFrame;
@@ -197,35 +195,10 @@ void MainWindow::parseLog(QByteArray data, int silent) {
         QDateTime time = QDateTime::fromMSecsSinceEpoch(timestamp);
         time.setTimeSpec(Qt::UTC);
 
+
         QByteArray frameID = QByteArray::fromRawData(reinterpret_cast<char*>(&block.canFrame.frm_id),sizeof(can_frm::frm_id));
         std::reverse(frameID.begin(), frameID.end());
 
-        if (periphery_map.contains(frameID.toHex().toUpper())) {
-            auto pss = periphery_map.value(frameID.toHex().toUpper());
-            quint64 value = *(reinterpret_cast<quint64*>(block.canFrame.data));
-            auto it_pss = pss->begin();
-            while(it_pss != pss->end()) {
-                can_param obj;
-                obj.key = it_pss->name;
-                obj.canFrame=block.canFrame;
-                obj.value = ((value >> it_pss->start) & (quint64)powl(2, it_pss->size)) * it_pss->ratio;
-                obj.timestamp = timestamp;
-                if (!params.contains(obj.key)) params.insert(obj.key, new param_series());
-                params.value(obj.key)->list->append(obj);
-                it_pss++;
-            }
-        }
-        else {
-            can_param obj;
-            quint32 tag = *(reinterpret_cast<quint32*>(&block.canFrame.frm_id));
-            quint64 value = *(reinterpret_cast<quint64*>(block.canFrame.data));
-            obj.key = QString("tag_%1").arg(tag);
-            obj.value = value;
-            obj.canFrame=block.canFrame;
-            obj.timestamp = timestamp;
-            if (!params.contains(obj.key)) params.insert(obj.key, new param_series());
-            params.value(obj.key)->list->append(obj);
-        }
 
         QString str;
         str = QString("RX ") + MainWindow::create_table_row_string(

@@ -19,6 +19,7 @@ LIBS += -L$$PWD/binlibs \
 CONFIG += c++11
 
 SOURCES += \
+        filteringdialog.cpp \
         graph.cpp \
         hexvalidator.cpp \
         main.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
 
 
 HEADERS += \
+        filteringdialog.h \
         graph.h \
         hexvalidator.h \
         mainwindow.h \

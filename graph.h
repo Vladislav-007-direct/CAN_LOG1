@@ -34,7 +34,7 @@ public:
     QWidget*            checkboxesWidget;
     QDialogButtonBox*   btn_box;
 
-    void setDataToGraph(const QMap<QString, param_series*>& data, const param_filter & paramfilter);
+    void setDataToGraph(const QMap<QString, param_series>& data);
     void setupUi();
     void removeSeries(const QString& name);
     void addSeries(const QString& name);

@@ -3,24 +3,18 @@
 #include <QDebug>
 #include <QtCharts/QLegend>
 
-void MainWindow::createGraphObject(quint32 frmid,int startBit,int length,double ratio) {
+void MainWindow::createGraphObject(param_filter filter) {
     if (!graphic) {
         graphic = new Graph(this);
         graphic->setupUi();
 
-        param_filter f;
-        f.frame_id=frmid;
-        f.start_bit=startBit;
-        f.length=length;
-        f.ratio=ratio;
-
-        graphic->setDataToGraph(params,f);
+        auto params=paramsFromBlocks(this->parsedBlocks,filter);
+        graphic->setDataToGraph(params);
 
         connect(graphic, &QDialog::destroyed, this, [this]() {
             this->graphic=nullptr;
         });
         connect(graphic, &QDialog::finished, this, [this]() {
-
             this->graphic->deleteLater();
         });
     }
@@ -31,60 +25,11 @@ void MainWindow::setDialogGraph() {
         if (createGraphdlg) {
             return;
         }
-        createGraphdlg = new QDialog(this);
+
+        createGraphdlg = new FilteringDialog(this->parsedBlocks,getPeriphery(),this);
         createGraphdlg->setMinimumWidth(250);
         createGraphdlg->setWindowTitle("Graph");
         createGraphdlg->setWindowFlags(createGraphdlg->windowFlags() & ~Qt::WindowContextHelpButtonHint);
-        QDialogButtonBox *btn_box = new QDialogButtonBox(createGraphdlg);
-        btn_box->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        connect(btn_box, &QDialogButtonBox::accepted, createGraphdlg, &QDialog::accept);
-        connect(btn_box, &QDialogButtonBox::rejected, createGraphdlg, &QDialog::reject);
-        QLabel *lb=new QLabel("ID");
-        QLabel *lb1=new QLabel("Start Bit");
-        QLabel *lb2=new QLabel("Length");
-        QLabel *lb3=new QLabel("Ratio");
-        auto ed=new QComboBox(this);
-        auto m=std::map<quint32,bool>();
-        ed->addItem("",0);
-        for(auto const &i:this->params){
-           for (auto const &j:(*i->list)){
-               if(!m[j.canFrame.frm_id]){
-                   m[j.canFrame.frm_id]=true;
-                   auto a=j.canFrame.frm_id;
-                   QByteArray frameID = QByteArray::fromRawData(reinterpret_cast<char*>(&a),sizeof(can_frm::frm_id));
-                   std::reverse(frameID.begin(), frameID.end());
-                   ed->addItem("0x"+frameID.toHex().toUpper(),j.canFrame.frm_id);
-               }
-           }
-        }
-        auto *ed1=new QSpinBox(this);
-        ed1->setValue(0);
-        ed1->setMaximum(7);
-        ed1->setMinimum(0);
-        auto *ed2=new QSpinBox(this);
-        ed2->setValue(8);
-        ed2->setMaximum(8);
-        ed2->setMinimum(1);
-        auto *ed3=new QDoubleSpinBox(this);
-        ed3->setDecimals(5);
-        ed3->setValue(1);
-        ed3->setMinimum(0);
-        ed1->setEnabled(false);
-        ed2->setEnabled(false);
-        ed3->setEnabled(false);
-
-        QGridLayout *layout = new QGridLayout();
-        layout->addWidget(lb,0,0);
-        layout->addWidget(ed,0,1);
-        layout->addWidget(lb1,1,0);
-        layout->addWidget(ed1,1,1);
-        layout->addWidget(lb2,2,0);
-        layout->addWidget(ed2,2,1);
-        layout->addWidget(lb3,3,0);
-        layout->addWidget(ed3,3,1);
-        layout->addWidget(btn_box,4,1);
-        createGraphdlg->setLayout(layout);
-
 
         connect(createGraphdlg, &QDialog::destroyed, this, [this]() {
             createGraphdlg=nullptr;
@@ -92,25 +37,12 @@ void MainWindow::setDialogGraph() {
         connect(createGraphdlg,&QDialog::rejected,this,[this](){
             this->createGraphdlg->deleteLater();
         });
-        connect(ed,&QComboBox::currentTextChanged,this,[=,this](){
-            auto frm_id=ed->currentData().toInt();
-            auto state=frm_id!=0;
-            ed1->setEnabled(state);
-            ed2->setEnabled(state);
-            ed3->setEnabled(state);
-       });
         connect(createGraphdlg, &QDialog::accepted, this, [=,this]() {
-            auto frm_id=ed->currentData().toInt();
-            int startBit=0,length=0;
-            double ratio=0;
-            if(frm_id!=0){
-                startBit=ed1->value();
-                length=ed2->value();
-                ratio=ed3->value();
-            }
-            createGraphObject(frm_id,startBit,length,ratio);
+            auto fil=createGraphdlg->filter();
+            createGraphObject(fil);
             this->createGraphdlg->deleteLater();
         });
+
     createGraphdlg->open();
 
 }
