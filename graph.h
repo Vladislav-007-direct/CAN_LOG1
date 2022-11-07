@@ -10,7 +10,6 @@
 namespace Ui {
     class Graph;
 }
-
 class CBIChart: public QChart {
     Q_OBJECT
 
@@ -27,21 +26,19 @@ public:
     void setVMax(qreal v) { vmax = v; };
 
 private:
-    qreal tmin = DBL_MAX;
-    qreal tmax = DBL_MIN;
-    qreal vmin = DBL_MAX;
-    qreal vmax = DBL_MIN;
+    qreal tmin = std::numeric_limits<qreal>::max();
+    qreal tmax = std::numeric_limits<qreal>::min();
+    qreal vmin = std::numeric_limits<qreal>::max();
+    qreal vmax = std::numeric_limits<qreal>::min();
 };
-
 class CBIChartView: public QChartView {
     Q_OBJECT
 
 public:
-    CBIChartView(QChart* chart): QChartView(chart) {};
 
+    CBIChartView(QChart* chart): QChartView(chart) {};
 signals:
     void signalZoom(int zoom1);
-
 public slots:
     virtual void wheelEvent(QWheelEvent *event);
 };
@@ -51,17 +48,17 @@ class Graph : public QDialog {
 
 public:
     struct seriesstruct {
-        qreal tmin = DBL_MAX;
-        qreal tmax = DBL_MIN;
-        qreal vmin = DBL_MAX;
-        qreal vmax = DBL_MIN;
-        QLineSeries* series;
-    };
-
+            qreal tmin = std::numeric_limits<qreal>::max();
+            qreal tmax = std::numeric_limits<qreal>::min();
+            qreal vmin = std::numeric_limits<qreal>::max();
+            qreal vmax = std::numeric_limits<qreal>::min();
+            QLineSeries* series;
+        };
     explicit Graph(QWidget *parent = nullptr);
     ~Graph();
 
-    void setDataToGraph(const QMap<QString, param_series*>& data);
+
+    void setDataToGraph(const QMap<QString, param_series>& data);
     void setupUi();
     void removeSeries(const QString& name);
     void addSeries(const QString& name);
@@ -72,8 +69,7 @@ private:
     CBIChartView*               chartView;
     QWidget*                    checkboxesWidget;
     QDialogButtonBox*           btn_box;
-    QMap<QString, seriesstruct*> seriess;
-
+    QMap<QString, seriesstruct> seriess;
 public slots:
     void zoomAll(int type);
 };

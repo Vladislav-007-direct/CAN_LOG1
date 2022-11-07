@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QMdiSubWindow>
 #include <QWindow>
+#include "filteringdialog.h"
 
 #include <QSerialPort>
 #include <QMutex>
@@ -151,7 +152,7 @@ public slots:
     void can1_saveLog();
     void can2_saveLog();
     void setDialogGraph();
-    void createGraphObject();
+    void createGraphObject(param_filter);
     /////////////////////////////
 
     void reboot();
@@ -202,7 +203,9 @@ public slots:
     void can1_clear();
     void can2_clear();
 
+    QMap<QString, QList<peripherystruct>*> getPeriphery();
     void parseLog(QByteArray data, int silent=0);
+    QMap<QString,param_series> paramsFromBlocks(QList<trblock> blocksl,param_filter filter);
     void fwinfo(QByteArray info_data);
 
     void showStatus(QString);
@@ -278,7 +281,7 @@ private:
     QDialog* can1Settings = nullptr;
     QDialog* can2Settings = nullptr;
 
-    QDialog *createGraphdlg = nullptr;//Graph
+    FilteringDialog *createGraphdlg = nullptr;//Graph
 
     QMainWindow *craneDlg = nullptr; //Crane
     QDialog *peripheryDlg = nullptr; //Periphery
@@ -354,7 +357,7 @@ private:
 
     QStringList files1;
     QStringList files2;
-    QMap<QString, param_series*> params;
+    QList<trblock> parsedBlocks;
 
     bool firstTimeConnection = true;
     bool firmwareUpdateWindowOpen = false;
